@@ -1,0 +1,45 @@
+************************      PRELIMINARY DATA      **************************
+
+     THIS RAW DATA HAS NOT BEEN SUBJECT TO THE NATIONAL OCEAN SERVICE'S
+     QUALITY CONTROL OR QUALITY ASSURANCE PROCEDURES AND DOES NOT MEET
+     THE CRITERIA AND STANDARDS OF OFFICIAL NATIONAL OCEAN SERVICE
+     DATA.  IT IS RELEASED FOR LIMITED PUBLIC USE AS PRELIMINARY DATA TO
+     BE USED ONLY WITH APPROPRIATE CAUTION. 
+
+************************      PRELIMINARY DATA      **************************
+
+
+       YR   -   Year of the data
+       JD   -   Decimal represenation of the day of the year
+       PW   -   Predicted water level referenced to MLLW (feet)
+       OW   -   Observed water level referenced to MLLW (feet)
+       WS   -   Wind speed (knots)
+       WD   -   Wind direction (degrees true)
+       WG   -   Wind gust (knots)
+       AT   -   Air Temperature (degrees farenheit)
+       WT   -   Water temperature (degrees farenheit)
+       SA   -   Salinty (PSU - Practical Salinity Units)
+       SG   -   Specific gravity
+       TZ   -   Timezone
+       AP   -   Air Pressure (millibars)
+       CD   -   Calander date
+       T    -   Time
+
+       ** NOTE **
+       A variable that has its data fields filled with '9's, indicates that
+       data was not collected for that sample period.
+       **********
+
+
+STATION NAME: Brandywine Shoal Light (8555889)
+**********************************************************************************************************************
+ YR      JD       PW    OW    WS   WD   WG       AT        WT       SA        SG     TZ     AP        CD         T
+**********************************************************************************************************************
+
+2006  114.0542   0.53   0.94   14  114   15     55.04     54.50    23.248    1.0183  EDT  1009.4  04/24/2006  01:18:00
+2006  114.0583   0.60   1.00   14  113   15     55.04     54.50    23.129    1.0182  EDT  1009.4  04/24/2006  01:24:00
+2006  114.9958   0.50  99.99 -999 -999 -999   -999.99   -999.99  -999.900 -999.9000  EDT  -999.9  04/24/2006  23:54:00
+2006  115.0000   0.41   0.31   11  212   13     56.12     54.68    23.542    1.0185  EDT  1010.9  04/25/2006  00:00:00
+2006  115.0042   0.33  99.99 -999 -999 -999   -999.99   -999.99  -999.900 -999.9000  EDT  -999.9  04/25/2006  00:06:00
+2006  115.0083   0.25   0.10   12  220   13     56.12     54.68    23.433    1.0184  EDT  1010.9  04/25/2006  00:12:00
+2006  115.0125   0.19   0.05   12  221   13     56.30     54.86    23.243    1.0183  EDT  1010.9  04/25/2006  00:18:00
