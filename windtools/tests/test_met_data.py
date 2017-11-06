@@ -4,24 +4,23 @@
 Tests of MetData functionality aside from reading
 """
 import datetime
-
 import numpy as np
 import pytest
 
-from windtools import met_data
+from windtools import MetData, MetDataError
 
 # fixme -- I should probably load something from a file for this...
-DummyData = met_data.MetData(TimeZone='PST',
+DummyData = MetData(TimeZone='PST',
                              Name='A test data set',
                              LatLong=(34.12, -119.32),
-                             Fields={ "WindSpeed": 0,
-                                       "WaterTemp": 1,
-                                       "WindDirection": 2,
-                                       },
-                            Units = {"WindSpeed": "knots",   # most often?
-                                     "WindDirection": "degrees",
-                                     "WaterTemp": "C"
+                             Fields={"WindSpeed": 0,
+                                     "WaterTemp": 1,
+                                     "WindDirection": 2,
                                      },
+                            Units={"WindSpeed": "knots",   # most often?
+                                   "WindDirection": "degrees",
+                                   "WaterTemp": "C"
+                                   },
                             DataArray = np.array([[14, 17.2, 310],
                                                   [18, 16.2, 300],
                                                   [16, 17.3, 290],
@@ -70,7 +69,7 @@ def test_check():
 def test_wrong_length():
     MD = DummyData.Copy()
     del MD.Times[-1]
-    with pytest.raises(met_data.MetDataError):
+    with pytest.raises(MetDataError):
         MD.CheckData()
 
 
@@ -78,7 +77,7 @@ def test_out_of_order():
     MD = DummyData.Copy()
     t = MD.Times[2:0:-1]
     MD.Times[:2] = t
-    with pytest.raises(met_data.MetDataError):
+    with pytest.raises(MetDataError):
         MD.CheckData()
 
 
@@ -92,10 +91,8 @@ def test_months():
                               ])
 
 
-def test_months():
-    a = DummyData.GetFieldsMonthlyAsArray((11,), ("WindSpeed","WindDirection"), )
+def test_months2():
+    a = DummyData.GetFieldsMonthlyAsArray((11,), ("WindSpeed", "WindDirection"), )
     print a
     assert np.array_equal(a, [[15, 340],
                               ])
-
-

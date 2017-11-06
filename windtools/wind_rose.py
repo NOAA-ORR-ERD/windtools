@@ -20,13 +20,14 @@ class WindRose():
         In this case, less than 3 goes into the "zero" bin, and everything greater
         than 21 is in the "large" bin, resulting in 6 total bins
 
-    num_dir_bins is the number of direction bins to use -- a power of two is usually used: 8, 16 or 32
+    num_dir_bins is the number of direction bins to use
+    -- a power of two is usually used: 4, 8, 16 or 32
     """
     def __init__(self,
-                 data = None,
-                 vel_bins = ([1, 5, 10, 15, 20, 25]),
-                 num_dir_bins = 16,
-                 units = "",
+                 data=None,
+                 vel_bins=((1, 5, 10, 15, 20, 25)),
+                 num_dir_bins=16,
+                 units="",
                  title="",
                  ):
         self.data = data
@@ -127,13 +128,18 @@ class WindRose():
         # now the speed bins:
         bins = list(spd_bins[1:-1].astype(np.int))
         bins.append('kts')
-        outfile.write(str(bins)+"\n")
+        outfile.write(str(bins) + "\n")
         # now the data table:
         for i in range(binned.shape[1]):
             row = [i]
-            row.append(list(binned[1:,i]))
-            outfile.write(str(row)+"\n")
+            row.append(list(binned[1:, i]))
+            outfile.write(str(row) + "\n")
 
+
+# ###################
+# Are these functions still used???
+#  They seem to duplicate the functionality in the class above
+# ##################
 def BuildStatTable(data, vel_bins, num_dir_bins=16):
     """
     Creates an array of binned data from the speed and velocity data provided.
@@ -168,31 +174,36 @@ def BuildStatTable(data, vel_bins, num_dir_bins=16):
     data[:,1] %= 360
 
     binned, _1, _2 = np.histogram2d(data[:,0], data[:,1], bins=(vel_bins, dir_bins) )
-    #scale to percent:
+    # scale to percent:
     binned /= binned.sum() # not using len(data), as there could be NaNs
     binned *= 100
 
     return binned
 
+
 def BuildDirAverages(data, num_dir_bins=16):
     """
     computes the average velocity in each direction bin
     """
-    print data
-    dir_bins = np.linspace(0, 360, num_dir_bins+1)
+    dir_bins = np.linspace(0, 360, num_dir_bins + 1)
     bin_width = 360. / num_dir_bins
 
-    ##shift data so that it is centered on the bins
-    ##  (i.e. 0 degrees is the middle of the North bin)
-    data[:,1] += (bin_width/2.0)
+    # shift data so that it is centered on the bins
+    #   (i.e. 0 degrees is the middle of the North bin)
+    data[:, 1] += (bin_width / 2.0)
     # so that > 360 is in the zeroth bin
-    data[:,1] %= 360
+    data[:, 1] %= 360
     avg = np.zeros(num_dir_bins,)
+
+    # strip the NaNs out in either speed or direction
+    good_ind = np.isfinite(data[:, 0]) & np.isfinite(data[:, 1])
+    data = data[good_ind, :]
     for i in range(num_dir_bins):
-        ind = (data[:,1] >= dir_bins[i]) & (data[:,1] < dir_bins[i+1])
+        ind = (data[:, 1] >= dir_bins[i]) & (data[:, 1] < dir_bins[i + 1])
         in_bin = data[ind, 0]
-        avg[i] = np.nansum(in_bin) / len(np.nonzero(np.isfinite(in_bin))[0])
-        return avg
+        avg[i] = np.average(in_bin)
+    return avg
+
 
 def MakeOSSMTable(data):
     """
@@ -202,7 +213,7 @@ def MakeOSSMTable(data):
     vel_bins = np.array([1, 3.5, 6.5, 10.5, 16.5, 21.5, 27.5, 33.5, 40.5, 47.5, 55.5 ])
 
     binned_data = BuildStatTable(data, vel_bins, num_dir_bins=16).transpose()
-    print binned_data.shape
+    # print binned_data.shape
     table = []
     table.append("      |                                   SPEED (KNOTS)                            | TOTAL|MEAN\n"
                  "16 PT.| 1 - 3| 4 - 6|  7-10| 11-16| 17-21| 22-27| 28-33| 34-40| 41-47| 48-55|  >=56|PERCNT|WIND \n"
