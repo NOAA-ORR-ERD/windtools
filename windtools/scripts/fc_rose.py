@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env pythonw
 
 """
 FC_Rose.py
@@ -6,21 +6,23 @@ FC_Rose.py
 An implementation of the Wind rose in FloatCanvas.
 """
 
-#!/usr/bin/env python
-
-import os, datetime
+import os
+import datetime
 import wx
 import numpy as np
-from math import radians, degrees
+# from math import radians
+# from math import degrees
 
-from weathertools import MetData
-import WindRose
-reload(WindRose) # for developing
-## import the installed version
+from windtools import MetData
+from windtools import WindRose
+
+# reload(WindRose)  # for developing
+# import the installed version
+
 from wx.lib.floatcanvas import FloatCanvas
 #from wx.lib.floatcanvas.Utilities import Colors
 
-import colormaps
+import windtools.colormaps
 
 months = ['All Year', 'January', 'February', 'March', 'April',
           'May', 'June', 'July', 'August', 'September', 'October',
@@ -37,11 +39,11 @@ class RoseFrame(wx.Frame):
         wx.Frame.__init__(self, *args, **kwargs)
 
         self.LastDir = os.getcwd()
-        
+
         MenuBar = wx.MenuBar()
 
         FileMenu = wx.Menu()
-        
+
         item = FileMenu.Append(wx.ID_ANY, text = "&Open")
         self.Bind(wx.EVT_MENU, self.OnOpen, item)
 
@@ -58,7 +60,7 @@ class RoseFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnQuit, item)
 
         MenuBar.Append(FileMenu, "&File")
-        
+
         HelpMenu = wx.Menu()
 
         item = HelpMenu.Append(wx.ID_HELP, "Test &Help",
@@ -84,11 +86,11 @@ class RoseFrame(wx.Frame):
         self.MonthSelector = wx.Choice(BGPanel, choices=months)
         self.MonthSelector.Selection = 0
         self.MonthSelector.Bind(wx.EVT_CHOICE, self.OnSelectMonth)
-        
+
         self.NumBinsSelector = wx.Choice(BGPanel, choices=['4', '8', '16', '32'])
         self.NumBinsSelector.Selection = 2
         self.NumBinsSelector.Bind(wx.EVT_CHOICE, self.OnSelectNumBins)
-        
+
         Stop = wx.BoxSizer(wx.HORIZONTAL)
         Stop.Add(self.MonthSelector, 0, wx.ALIGN_LEFT|wx.ALL, 5)
         Stop.Add((1,1), 1)
@@ -106,15 +108,15 @@ class RoseFrame(wx.Frame):
         #self.vel_bins = [1, 5, 10, 15, 21,]
         self.vel_bins = [3, 6, 10, 15, 20, 25, 35, 55]
         self.num_dir_bins = 16
-        
+
     def OnQuit(self,Event):
         self.Destroy()
-        
+
     def OnAbout(self, event):
         dlg = wx.MessageDialog(self,
                                "This is a small program to generate\n"
                                "Wind Roses from historical wind data\n"
-                               " See Chris Barker for more info\n" 
+                               " See Chris Barker for more info\n"
                                "About Me", wx.OK | wx.ICON_INFORMATION)
         dlg.ShowModal()
         dlg.Destroy()
@@ -129,7 +131,7 @@ class RoseFrame(wx.Frame):
     def OnOpen(self, event):
         dlg = wx.FileDialog(self,
                             message="Choose a wind file",
-                            defaultDir=self.LastDir, 
+                            defaultDir=self.LastDir,
                             defaultFile="",
                             #wildcard=wildcard,
                             style=wx.OPEN | wx.CHANGE_DIR
@@ -175,58 +177,64 @@ class RoseFrame(wx.Frame):
     def OnPrefs(self, event):
         dlg = wx.MessageDialog(self, "This would be an preferences Dialog\n"
                                      "If there were any preferences to set.\n",
-                                "Preferences", wx.OK | wx.ICON_INFORMATION)
+                               "Preferences", wx.OK | wx.ICON_INFORMATION)
         dlg.ShowModal()
         dlg.Destroy()
-        
+
     def LoadNewFile(self, infilename):
-        self.MetData = MetData.MetData(infilename)
+        try:
+            self.MetData = MetData(infilename)
+        except Exception as err:
+            dlg = wx.MessageDialog(self, str(err), "File Not Loaded", wx.OK | wx.ICON_WARNING)
+            dlg.ShowModal()
+            dlg.Destroy()
         self.MonthSelector.SetStringSelection("All Year")
         self.OnSelectMonth()
-        
+
     def OnSelectMonth(self, evt=None):
         month = self.MonthSelector.StringSelection
         month_ind = months.index(month)
-        
-        if month_ind == 0: # All Year
-            data = self.MetData.GetFieldsAsArray( ("WindSpeed", "WindDirection") )
+
+        if month_ind == 0:  # All Year
+            data = self.MetData.GetFieldsAsArray(("WindSpeed", "WindDirection"))
         else:
-            data = self.MetData.GetFieldsMonthlyAsArray((month_ind,), ("WindSpeed", "WindDirection") )
-        
+            data = self.MetData.GetFieldsMonthlyAsArray((month_ind,), ("WindSpeed",
+                                                                       "WindDirection"))
+
         if len(data) == 0:
-            self.WindRose.DrawMessage("No Data for %s"%month)
+            self.WindRose.DrawMessage("No Data for %s" % month)
         else:
             units = self.MetData.Units['WindSpeed']
             if units == 'knots':
                 vel_bins = [3, 6, 10, 15, 20, 25, 35, 55]
             elif units == 'm/s':
-                vel_bins = [1, 5, 10, 15, 21,]
+                vel_bins = [1, 5, 10, 15, 21]
             else:
                 vel_bins = self.vel_bins
-                
-            title = title = "%s: %s"%(self.MetData.Name, month)
-            Rose = WindRose.WindRose(data,
-                                     vel_bins,
-                                     num_dir_bins=self.num_dir_bins,
-                                     units = units,
-                                     title = title,
-                                     )
+
+            title = title = "%s: %s"%  (self.MetData.Name, month)
+            Rose = WindRose(data,
+                            vel_bins,
+                            num_dir_bins=self.num_dir_bins,
+                            units=units,
+                            title=title,
+                            )
             self.WindRose.DrawRose(Rose)
-        
+
     def OnSelectNumBins(self, evt=None):
         self.num_dir_bins = int(self.NumBinsSelector.StringSelection)
         self.OnSelectMonth()
-        
-   
+
+
 class WindRoseParametersPanel(wx.Panel):
     def __init__(self, parent,  Rose, *args, **kwargs):
         wx.Panel.__init__(self, parent, *args, **kwargs)
-        
+
         self.Rose = Rose
-        
+
         ## build the GUI:
         MainSizer = wx.GridSizer(rows=4, cols=2, vgap=5, hgap=5)
-        
+
 
 class WindRosePanel(wx.Panel):
 
@@ -250,7 +258,7 @@ class WindRosePanel(wx.Panel):
 
         self.Canvas = Canvas
 
-        #FloatCanvas.EVT_MOTION(Canvas, self.OnMove ) 
+        #FloatCanvas.EVT_MOTION(Canvas, self.OnMove )
 
         self.SetSizerAndFit(S)
 
@@ -261,9 +269,9 @@ class WindRosePanel(wx.Panel):
         self.font_family = wx.SWISS
 
         self.Show()
-    
-    
-    
+
+
+
     def DrawMessage(self, message):
         Canvas = self.Canvas
         Canvas.ClearAll()
@@ -278,7 +286,7 @@ class WindRosePanel(wx.Panel):
         Canvas.AddRectangle((-w/2, -w/2), (w, w), LineStyle=None )
 
         Canvas.ZoomToBB()
-    
+
     def DrawRose(self, Rose):
         self.Rose = Rose
         wfs = Rose.binned_data
@@ -288,7 +296,7 @@ class WindRosePanel(wx.Panel):
 
         Canvas = self.Canvas
         Canvas.ClearAll()
-        
+
         calm = wfs[0,:].sum()
         n_dir = wfs.shape[1] # number of direction bins
 
@@ -296,7 +304,7 @@ class WindRosePanel(wx.Panel):
         wfs = wfs [1:,:]
         n = wfs.shape[0]
         c = (8. / n * np.linspace(0,n,n) + 2)[::-1]
-        cm = colormaps.ColorMap("jet")
+        cm = windtools.colormaps.ColorMap("jet")
         clrs = cm.get_colors(c, (0,10))
         wf = wfs.sum(axis=0)
         max_percent = wf.max() # max percent in all direction bins
@@ -304,9 +312,9 @@ class WindRosePanel(wx.Panel):
         #sc = float(rsize)**2/mwf #scale factor, pts per number
         da = 2.0 * np.pi / n_dir
         dah = .45 * da
-        
+
         theta = np.linspace(0, 2*np.pi, n_dir+1)[:-1]
-        
+
         #now plot :
         line_width=1
         fill_color="black"
@@ -338,7 +346,7 @@ class WindRosePanel(wx.Panel):
             for i, percent in enumerate(percents):
                 if percent == 0:
                     continue
-                r = (np.sqrt((percent))*r_scale + r_center) 
+                r = (np.sqrt((percent))*r_scale + r_center)
                 Canvas.AddObject(FloatCanvas.Arc(( r*np.sin(a+dah), r*np.cos(a+dah) ),
                                                  ( r*np.sin(a-dah), r*np.cos(a-dah) ),
                                                  (0,0),
@@ -399,7 +407,7 @@ class WindRosePanel(wx.Panel):
                        (-r,0),
                        Position='cr',
                        **text_style)
-        
+
         # add the Title:
         if title is None:
             title = "Wind Rose"
@@ -440,12 +448,12 @@ class WindRosePanel(wx.Panel):
                              #Weight = wx.BOLD,
                              Position='bl',
                              )
-        
+
         # add an invisible box for the Bounding Box:
         #Canvas._ResetBoundingBox()
         #w = np.abs(Canvas.BoundingBox).max() * 2
         #Canvas.AddRectangle((-w/2, -w/2), (w, w), LineStyle=None )
-        
+
         Canvas.ZoomToBB()
 
     def SaveImage(self, filename):
@@ -469,7 +477,7 @@ class RoseApp(wx.App):
             self.frame.MetData = make_random_data(5000)
             self.frame.OnSelectMonth()
         return True
-    
+
 #    def OpenFileMessage(self, filename):
 #        dlg = wx.MessageDialog(None,
 #                               "This app was just asked to open:\n%s\n"%filename,
@@ -482,7 +490,7 @@ class RoseApp(wx.App):
         print filename
         print "%s dropped on app"%(filename) #code to load filename goes here.
         self.frame.LoadNewFile(filename)
-       
+
 def make_random_data(num_samples):
     dirs = np.r_[np.random.normal(loc=45, scale = 20, size=(num_samples,) ),
                  np.random.normal(loc=270, scale = 40, size=(num_samples,) )] % 360
@@ -491,7 +499,7 @@ def make_random_data(num_samples):
     data = np.c_[spds, dirs]
     # make an hourly time series
     Times = [datetime.datetime(2009,1,1) + datetime.timedelta(hours=i) for i in range(len(data))]
-    data = MetData.MetData( FileReader=None,
+    data = MetData( FileReader=None,
                             DataArray=data,
                             Fields = { "WindSpeed": 0,
                                        "WindDirection": 1,
@@ -519,4 +527,4 @@ if __name__ == "__main__":
     except ImportError: # we're not -- do the regular start up
         print "Ipython did not import"
         app.MainLoop()
-    
+

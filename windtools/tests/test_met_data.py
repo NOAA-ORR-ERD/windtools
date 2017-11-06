@@ -6,15 +6,15 @@ Tests of MetData functionality aside from reading
 import datetime
 
 import numpy as np
-import nose
+import pytest
 
-from weathertools import MetData
+from windtools import met_data
 
 # fixme -- I should probably load something from a file for this...
-DummyData = MetData.MetData(TimeZone = 'PST',
-                            Name = 'A test data set',
-                            LatLong = (34.12, -119.32),
-                            Fields = { "WindSpeed": 0,
+DummyData = met_data.MetData(TimeZone='PST',
+                             Name='A test data set',
+                             LatLong=(34.12, -119.32),
+                             Fields={ "WindSpeed": 0,
                                        "WaterTemp": 1,
                                        "WindDirection": 2,
                                        },
@@ -62,35 +62,40 @@ DummyData = MetData.MetData(TimeZone = 'PST',
                                      ],
                             )
 
+
 def test_check():
     assert DummyData.CheckData()
 
-@ nose.tools.raises(MetData.MetDataError)
-def test_wrong_length():
-    MD =  DummyData.Copy()
-    del MD.Times[-1]
-    MD.CheckData()
 
-@ nose.tools.raises(MetData.MetDataError)
+def test_wrong_length():
+    MD = DummyData.Copy()
+    del MD.Times[-1]
+    with pytest.raises(met_data.MetDataError):
+        MD.CheckData()
+
+
 def test_out_of_order():
-    MD =  DummyData.Copy()
+    MD = DummyData.Copy()
     t = MD.Times[2:0:-1]
     MD.Times[:2] = t
-    MD.CheckData()
+    with pytest.raises(met_data.MetDataError):
+        MD.CheckData()
+
 
 def test_months():
-    a = DummyData.GetFieldsMonthlyAsArray((2,5), ("WindSpeed","WaterTemp"), )
-    print a  
-    assert np.array_equal(a, [[ 16., 17.3],
-                              [ 18., 18.2],
-                              [ 24., 13.3],
-                              [ 22., 15.1],
+    a = DummyData.GetFieldsMonthlyAsArray((2, 5), ("WindSpeed", "WaterTemp"), )
+    print a
+    assert np.array_equal(a, [[16., 17.3],
+                              [18., 18.2],
+                              [24., 13.3],
+                              [22., 15.1],
                               ])
+
+
 def test_months():
     a = DummyData.GetFieldsMonthlyAsArray((11,), ("WindSpeed","WindDirection"), )
-    print a  
+    print a
     assert np.array_equal(a, [[15, 340],
                               ])
-    
-    
-    
+
+

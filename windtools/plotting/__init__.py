@@ -1,3 +1,5 @@
-#!/usr/bin env python
+#!/usr/bin/env python
 
-pass
+"""
+plotting wind data with MPL
+"""
