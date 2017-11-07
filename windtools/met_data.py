@@ -32,7 +32,9 @@ Standard Field names used so far:
 
 
 """
-import os, datetime, copy
+import os
+import datetime
+import copy
 
 import numpy as np
 
@@ -59,9 +61,9 @@ class MetData:
 
     After Loading the data, it will have a DataArray attribute that is a
     numpy array of Floats (doubles). Missing values are replaced by NaN.
-    
+
     fixme: Use masked arrays instead?
-    
+
     """
 
     def __init__(self,
@@ -99,7 +101,7 @@ class MetData:
             #print 'Using filereader: ', FileReader
             self.FileReader = FileReader
             self.LoadData()
-            
+
     def __getitem__(self, index):
        if ( type(index) == type("") or type(index) == type(u"") ):
            index = (index,)
@@ -107,7 +109,7 @@ class MetData:
 
     def DetectFileType(self):
         PossibleTypes = []
-        
+
         for ReaderClass in FileReaderClasses:
             Reader = apply(ReaderClass)
             if Reader.IsType(self.FileName):
@@ -116,7 +118,8 @@ class MetData:
         return PossibleTypes
 
     def LoadData(self):
-        ##fixme: Shouldn't this be handled with subclassing or something?
+        # fixme: Shouldn't this be handled with subclassing or something?
+        # or reall, the FileReader should poopulate the MetDAta object..
         self.FileReader.LoadData(self.FileName)
         self.DataArray = self.FileReader.DataArray
         self.Fields = self.FileReader.Fields
@@ -127,14 +130,14 @@ class MetData:
         self.LatLong = self.FileReader.LatLong
 
     def ChangeTZ(self, shift, name):
-		# fixme -- this should be smarter about timezones and their names
-		self.TimeZone = name
-		shift = datetime.timedelta(hours=shift)
-		self.Times = [t - shift for t in self.Times]
-        
+        # fixme -- this should be smarter about timezones and their names
+        self.TimeZone = name
+        shift = datetime.timedelta(hours=shift)
+        self.Times = [t - shift for t in self.Times]
+
     def ChangeUnits(self, shift, name):
         pass
-        
+
     def TruncateTimeSeries(self, sdate=None, edate=None):
         if sdate is not None:
             sidx = [id for id,date in enumerate(self.Times) if date>=sdate][0]
@@ -144,10 +147,11 @@ class MetData:
             eidx = [id for id,date in enumerate(self.Times) if date<=edate][0]
         else:
             eidx = len(self.Times)
-            
+
         self.Times = self.Times[sidx:eidx]
         self.DataArray = self.DataArray[sidx:eidx,:]
-            
+
+
 
     def SaveAsOSSMWind(self, filename, name=None, units='mps'):
         print "writing:", filename
@@ -186,11 +190,11 @@ class MetData:
         data = self.DataArray[:, (spd_idx, )]
         # write the file:
         outfile = file(filename, 'w')
-        outfile.write("%s\n"%self.Name)
-        outfile.write("%f, %f\n"%self.LatLong) ## this needs to be fixed!
-        
-        outfile.write("%s\n"%units)
-        outfile.write("%s\n"%self.TimeZone)
+        outfile.write("%s\n" % self.Name)
+        outfile.write("%f, %f\n" % self.LatLong)  # this needs to be fixed!
+
+        outfile.write("%s\n" % units)
+        outfile.write("%s\n" % self.TimeZone)
         outfile.write("0,0,0,0,0,0,0,0\n")
         for t, (speed) in zip(self.Times, data):
             if np.isnan(speed):
@@ -199,7 +203,7 @@ class MetData:
             # convert speed
             speed = UC.Convert("Velocity", SpeedUnits, units, speed)
             outfile.write("%.2f\n"%(speed,))
-            
+
     def GetFieldsAsArray(self, fields):
         """
         returns a numpy array with just the fields specified in fields
@@ -213,7 +217,7 @@ class MetData:
     def GetFieldsMonthlyAsArray(self, months, fields, ):
         """
         Returns a numpy array with just the fields specified in fields, and only for the months specified.
-        
+
         months should be a sequence of month indexes, ie: (1,2) for January and February
         """
         field_ind = []
@@ -237,43 +241,44 @@ class MetData:
         prev_time = self.Times[0]
         for i, time in enumerate(self.Times[1:]):
             if time - prev_time <= datetime.timedelta(0):
-                raise MetDataError("Times are out of sequence at: %s"%time)
+                raise MetDataError("Times are out of sequence at: %s" % time)
         return True
 
     def Copy(self):
         """
         returns a MetData object that is a copy of this one
         """
-        #fixme: should this be the __copy__ or __deepcopy__ method?
-        MD = MetData(DataArray = copy.copy(self.DataArray),
-                     Fields = copy.copy(self.Fields),
-                     Units = copy.copy(self.Units),
-                     Times = copy.copy(self.Times),
-                     TimeZone = copy.copy(self.TimeZone),
-                     Name = copy.copy(self.Name),
-                     LatLong = copy.copy(self.LatLong),
+        # fixme: should this be the __copy__ or __deepcopy__ method?
+        MD = MetData(DataArray=copy.copy(self.DataArray),
+                     Fields=copy.copy(self.Fields),
+                     Units=copy.copy(self.Units),
+                     Times=copy.copy(self.Times),
+                     TimeZone=copy.copy(self.TimeZone),
+                     Name=copy.copy(self.Name),
+                     LatLong=copy.copy(self.LatLong),
                      )
-        
         return MD
 
     def Concatenate(self, new_data):
         """
         adds the passed in data to this data set.
+
+        # ToDo: make this the __iadd__ method!
         """
         # check the time periods of the two:
         start1 = self.Times[0]
         end1 = self.Times[-1]
         start2 = new_data.Times[0]
         end2 = new_data.Times[-1]
-        
+
         if start1 > start2:
             first = 1
         else:
             first = 2
 
         # check for overlap:
-        
-        
+
+
 
 class MetFileReader:
     """
@@ -284,24 +289,24 @@ class MetFileReader:
         self.TimeZone = 'UTC' # this can be changed by individual reader, if need be
         self.Name = ""
         self.LatLong = (None, None)
-        self.DataArray = None 
+        self.DataArray = None
         self.Times = None
 
 class OSSM_ReaderClass(MetFileReader):
     """
     Class for reading data from OSSM format files.
-    
+
     This is subclassed for the different types...
-    
+
     The trick here is that OSSM format files often don't have any info about
     what the data is, or units, or...
-    
+
     Not all that well tested!
-    
+
     """
-    
+
     Type = "OSSM"
-    TimeZone = 'local' # is this usually the case?    
+    TimeZone = 'local' # is this usually the case?
     Fields = { "WindSpeed": 0,
                "WindDirection": 1,  # but not always!
                }
@@ -312,7 +317,7 @@ class OSSM_ReaderClass(MetFileReader):
     def IsType(self, FileName):
         """
         How to do this???
-        
+
         The data should be 7 comma separated values
         """
         ## I think the fifth line should be all zeros
@@ -327,7 +332,7 @@ class OSSM_ReaderClass(MetFileReader):
         """
         data = line.strip().split(',')
         # should be 7 fields
-        if len(data) != 7: 
+        if len(data) != 7:
             return False
         # first 5 should be integers
         try:
@@ -339,7 +344,7 @@ class OSSM_ReaderClass(MetFileReader):
             map(float, data[5:])
         except ValueError:
             return False
-        # fixme: Should I check data fields, etc? 
+        # fixme: Should I check data fields, etc?
         return True
 
     def CheckHeader(self, FileName, num_rows=0):
@@ -358,7 +363,7 @@ class OSSM_ReaderClass(MetFileReader):
     def ReadData(self, infile):
         """
         reads the actual data.
-        
+
         infile should be an open text file, already at the top of the data
         """
         DataArray = []
@@ -380,7 +385,7 @@ class OSSM_Raw_ReaderClass(OSSM_ReaderClass):
     """
     Reader for old-style OSSM wind files with no header at all
     """
-    Type = "OSSM_Raw"    
+    Type = "OSSM_Raw"
     TimeZone = None # should this be None?
     Fields = { "WindSpeed": 0,
                "WindDirection": 1,
@@ -409,7 +414,7 @@ class OSSM_Wind_ReaderClass(OSSM_ReaderClass):
 
     def LoadData(self, FileName):
         infile = file(FileName, 'U')
-        
+
         # read the header
         self.Name = infile.readline().strip()
         # lat-long
@@ -440,11 +445,11 @@ class OSSM_Hyd_Reader(OSSM_ReaderClass):
     Reader for the OSSM "Hydrology" format -- usually used for river flow data
     """
     Type = "OSSM_Hyd"
-    TimeZone = None # No info in the file...    
+    TimeZone = None # No info in the file...
     Fields = { "Discharge": 0,
                }
     Units = {} # will be set from header
-    
+
     def IsType(self, FileName):
         """
         Sixth row should be OSSM-style data, and first five should not be.
@@ -454,17 +459,17 @@ class OSSM_Hyd_Reader(OSSM_ReaderClass):
 
     def LoadData(self, FileName):
         infile = file(FileName, 'U')
-        
+
         # read the header
         self.Name = infile.readline().strip()
         line = infile.readline()
         self.LatLong = tuple( map(float, line.strip().split(',')) )
         self.Units["Discharge"] = infile.readline().strip()
-        
+
         self.ReadData(infile)
         self.DataArray = self.DataArray[:, 0:1].copy() # remove the empty direction column
 
-   
+
 class NGDC_ReaderClass(MetFileReader):
     """
     class for reading data from NGDC:
@@ -483,7 +488,7 @@ class NGDC_ReaderClass(MetFileReader):
               "AirTemp": 3,
               }
 
-    #This maps the field names to units. 
+    #This maps the field names to units.
     Units = {"WindSpeed": "mph",
              "WindDirection": "degrees", # 990 is "variable", "***" is calm
              "WindGusts": "mph",
@@ -501,7 +506,7 @@ class NGDC_ReaderClass(MetFileReader):
         Detects whether the given file is this type of met file
 
         I'm sure this could be much improved -- why not just use LoadData?
-        
+
         """
         infile = file(FileName, 'U')
         for i, line in enumerate(infile):
@@ -524,7 +529,7 @@ class NGDC_ReaderClass(MetFileReader):
                 # fixme: could there be multiple stations in one file?
                 self.Name = "USAF: %s, NCDC WBAN NUMBER: %s"%(line[0:6], line[7:12])
             data = line[13:73].split()# only the first part -- all we're parsing
-            
+
             #process date:
             dt = data[0]
             y  = int(dt[0:4])
@@ -557,8 +562,8 @@ class NGDC_ReaderClass(MetFileReader):
 
         self.DataArray = DataArray
         self.Times = Times
-    
-    
+
+
 class RawPortsReaderClass(MetFileReader):
     """
     Class for reading data from the raw real time PORTS data
@@ -578,7 +583,7 @@ class RawPortsReaderClass(MetFileReader):
               "AirPressure": 9,
               }
 
-    #This maps the field names to units. 
+    #This maps the field names to units.
     Units = {"PredictedWaterLevel": "feet",
              "ObservedWaterLevel": "feet",
              "WindSpeed": "knots",
@@ -601,7 +606,7 @@ class RawPortsReaderClass(MetFileReader):
         Detects whether the given file is this type of met file
 
         I'm sure this could be much improved -- why not just use LoadData and see if you get an exception?
-        
+
         """
         Yes = 0
         infile = file(FileName, 'U')
@@ -632,7 +637,7 @@ class RawPortsReaderClass(MetFileReader):
             raise BadFileTypeError("This does not appear to be a %s file\nIt does not have the right Header line after the 'STATION NAME'"%self.Type)
         infile.readline()
         infile.readline()
-                
+
         ## load the data
         DataArray = []
         Times = []
@@ -660,18 +665,18 @@ class RawPortsReaderClass(MetFileReader):
 
         self.DataArray = DataArray
         self.Times = Times
-        
-    
+
+
 class NDBCReaderClass(MetFileReader):
     """
     Class for reading data from the NDBC historical archives or Real time data
-    
+
     Amy 11/09: Included year,month,day,hour,min column in field mapping -- since there are so many variations
 
     """
     ##fixme -- this is going to have to be much smarter -- reading the header to figure out what fields are there. ARRGG!!
     ## Amy 11/09 made it a litte bit smarter -- it handles all NDBC archives formats, real-time and continuous winds formats
-    
+
     Type = "NDBC"
 
     # this maps the short versions in the header with the longer ones:
@@ -701,8 +706,8 @@ class NDBCReaderClass(MetFileReader):
                    "TIDE": "TideHeight",
                    "PTDY": "PressureTendency",
                    }
-    
-    #This maps the field names to units. 
+
+    #This maps the field names to units.
     Units = {"WindDirection":"degrees",
              "WindSpeed": "m/s",
              "WindGusts": "m/s",
@@ -727,7 +732,7 @@ class NDBCReaderClass(MetFileReader):
     ## These are all possible numbers indicating missing values!
     MissingValues = (-999999, 99.00, 999, 999.0)# not really -999999, but "MM" is converted to this
     HeaderLine = ['MM','DD','hh']
-    
+
     def MapFields(self, Header):
         """
         Maps the field names to the column number in the data array
@@ -742,10 +747,10 @@ class NDBCReaderClass(MetFileReader):
         Detects whether the given file is this type of met file
 
         I'm sure this could be much improved
-        
+
         """
         line = file(FileName, 'U').readline()
-        
+
         if line.split()[1:4] == self.HeaderLine:
             return True
         else:
@@ -801,7 +806,7 @@ class NDBCReaderClass(MetFileReader):
         ## Replace the missing values with NaN:
         for val in self.MissingValues:
             self.DataArray[self.DataArray == val] =  np.NaN
-        
+
         ## this data is usually in reverse order
         if Times[1] < Times[0]: # the times appear to be in reverse order
             Times.reverse()
@@ -823,12 +828,12 @@ class NCDC_LCD_ReaderClass(MetFileReader):
               "AirTemp": 2,
               }
 
-    #This maps the field names to units. 
+    #This maps the field names to units.
     Units = {"WindSpeed": "mph",
              "WindDirection": "degrees",
              "AirTemp": "celsius",
              }
-    
+
     ## These are all possible numbers indicating missing values!
     MissingValues = (-99999, )
 
@@ -839,7 +844,7 @@ class NCDC_LCD_ReaderClass(MetFileReader):
         Detects whether the given file is this type of met file
 
         I'm sure this could be much improved -- why not just use LoadData?
-        
+
         """
         Yes = 0
         infile = file(FileName, 'U')
@@ -867,7 +872,7 @@ class NCDC_LCD_ReaderClass(MetFileReader):
             count += 1
         else:
             raise BadFileTypeError("This does not appear to be a %s file\n It does not have a the right header line."%self.Type)
-                
+
         ## load the data
         DataArray = []
         Times = []
@@ -885,7 +890,7 @@ class NCDC_LCD_ReaderClass(MetFileReader):
             if 'M' in temp:
                 temp = np.NaN
             y, mo, d = date[0:4], date[4:6], date[6:8]
-            h, mi, s = time[0:2], time[2:4], 0 
+            h, mi, s = time[0:2], time[2:4], 0
             dt = datetime.datetime(*[int(x) for x in (y, mo, d, h, mi, s)])
             Times.append(dt)
             DataArray.append( (float(speed), float(dir), float(temp)) )
@@ -899,7 +904,7 @@ class NCDC_LCD_ReaderClass(MetFileReader):
         self.Times = Times
         self.TimeZone = "LST"
         self.LatLong = (Lat, Long)
-        
+
 
 FileReaderClasses = [RawPortsReaderClass,
                      NDBCReaderClass,
