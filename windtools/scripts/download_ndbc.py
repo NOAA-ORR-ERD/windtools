@@ -5,19 +5,20 @@ script to download historical data from NDBC
 """
 
 import sys
+import datetime
 import requests
 
 USAGE = """download_ndbc.py station_name [startyear=2000] [endyear=2018]
 
-Downloads the historical data files from teh NDBC web site:
+Downloads the historical data files from the NDBC web site:
 
 http://www.ndbc.noaa.gov/
 
-The station name is the short alphanumerric ID of the station.
+The station name is the short alphanumeric ID of the station.
 
 The script will look for data starting in startyear, ending in endyear.
 
-If you don't specify, it will look for 2000 -- 2018
+If you don't specify, it will look for 2000 -- this year
 
 example:
 
@@ -49,7 +50,7 @@ if __name__ == "__main__":
     try:
         endyear = int(sys.argv[3])
     except IndexError:
-        endyear = 2018
+        endyear = datetime.datetime.now().year
     try:
         startyear = int(sys.argv[2])
     except IndexError:

@@ -259,7 +259,7 @@ class MetData:
                      )
         return MD
 
-    def Concatenate(self, new_data):
+    def merge(self, other):
         """
         adds the passed in data to this data set.
 
@@ -268,16 +268,55 @@ class MetData:
         # check the time periods of the two:
         start1 = self.Times[0]
         end1 = self.Times[-1]
-        start2 = new_data.Times[0]
-        end2 = new_data.Times[-1]
+        start2 = other.Times[0]
+        end2 = other.Times[-1]
 
-        if start1 > start2:
-            first = 1
+        if start1 < start2:
+            first = self
+            second = other
         else:
-            first = 2
+            first = other
+            second = self
 
         # check for overlap:
+        if second.Times[0] < first.Times[-1]:
+            msg = ("cannot merge two overlapping datasets:\n"
+                   "first is from {} to {}\n"
+                   "second is from {} to {}\n".format(first.Times[0],
+                                                      first.Times[-1],
+                                                      second.Times[0],
+                                                      second.Times[-1],
+                                                      ))
 
+            raise ValueError(msg)
+
+        # check for matching fields:
+        print "self fields:", self.Fields
+        print "other fields:", other.Fields
+
+        if first.Fields != second.Fields:
+            print first.Fields.keys()
+            print second.Fields.keys()
+            raise ValueError("dataset Fields don't match")
+        if first.TimeZone != second.TimeZone:
+            raise ValueError("Timezone doesn't match")
+        if first.Units != second.Units:
+            raise ValueError("Units doesn't match")
+        if first.LatLong != self.LatLong:
+            raise ValueError("LatLong doesn't match")
+
+        # Merge them:
+        self.Times = first.Times + second.Times
+        print first.DataArray.shape
+        print second.DataArray.shape
+        self.DataArray = np.concatenate((first.DataArray,
+                                         second.DataArray))
+        print self.DataArray.shape
+        return None  # This is a mutating method -- so it returns None
+
+    def __iadd__(self, other):
+        self.merge(other)
+        return self
 
 
 class MetFileReader:
