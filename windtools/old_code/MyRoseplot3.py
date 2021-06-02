@@ -121,7 +121,7 @@ def GenerateRose2(filename,  wfs, vel_bins):
     colors=[(0.,.5,0.),(0.,.7,.7),(.5,.6,.6),(.8,.6,.4),(1.,0.,0.),(1.,1.,0.),(0.,1.,0.),(0.,1.,1.)]
     clrs=[SVG.rgbstring(*t) for t in colors]
     
-    print wfs
+    print(wfs)
     sumb = wfs.sum() 
     calm = wfs[:,0].sum()
     dirless = 0
@@ -151,7 +151,7 @@ def GenerateRose2(filename,  wfs, vel_bins):
     a.scale(xmin=-1,xmax=1,ymin=-1,ymax=1)
     a.group(stroke_width=".25pt", fill="black", text_anchor='middle')
 
-    print calm, dirless, sumb
+    print(calm, dirless, sumb)
     lightVariable = (calm+dirless) * 100. / sumb
     # put the percent light and variable in the middle:
     a.text(256, 256, 0, "%.2f%%"%lightVariable, font_size='12pt')

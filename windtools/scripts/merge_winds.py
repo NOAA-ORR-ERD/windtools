@@ -25,7 +25,7 @@ from windtools import MetData
 
 if len(sys.argv) < 4:
     print("You must supply at least two input files and one output file")
-    print Usage
+    print(Usage)
     sys.exit()
 else:
     infilenames = sys.argv[1:-1]
@@ -44,11 +44,11 @@ if not outfilename.lower().endswith(".osm"):
 # except IndexError:
 #     timeZoneName = ""
 
-print "Reading:", infilenames[0]
+print("Reading:", infilenames[0])
 data = MetData(infilenames[0])
 
 for infile in infilenames[1:]:
-    print "Reading:", infile
+    print("Reading:", infile)
     new_data = MetData(infile)
     data += new_data
 

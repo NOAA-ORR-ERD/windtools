@@ -29,7 +29,7 @@ spds = np.random.normal(loc=10, scale = 6, size=(n,) )
 # spds_norm = np.where((spds_norm<0), 0, spds_norm)
 np.clip(spds, 0, np.inf, spds)
 data_norm = np.c_[spds, dirs]
-print data_norm
+print(data_norm)
 
 # sample data:
 # one in each bin
@@ -46,8 +46,8 @@ def test_one_in_each():
 
 def test_add_to_100percent():
     binned_data = wind_rose.BuildStatTable(data_norm, bins, num_dir_bins=16)
-    print binned_data
-    print repr(binned_data.sum())
+    print(binned_data)
+    print(repr(binned_data.sum()))
     assert round(binned_data.sum(), 10)  == 100.0
 
 
@@ -57,8 +57,8 @@ def test_missing_data():
     data[[3, 5, 9, 10], 0] = np.nan
     data[[13, 15, 32, 56], 1] = np.nan
     binned_data = wind_rose.BuildStatTable(data_norm, bins, num_dir_bins=4)
-    print binned_data
-    print binned_data.sum()
+    print(binned_data)
+    print(binned_data.sum())
     assert round(binned_data.sum(), 10) == 100.0
 
 

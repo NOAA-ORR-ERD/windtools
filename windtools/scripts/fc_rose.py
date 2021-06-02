@@ -44,19 +44,19 @@ class RoseFrame(wx.Frame):
 
         FileMenu = wx.Menu()
 
-        item = FileMenu.Append(wx.ID_ANY, text = "&Open")
+        item = FileMenu.Append(wx.ID_ANY, "&Open")
         self.Bind(wx.EVT_MENU, self.OnOpen, item)
 
-        item = FileMenu.Append(wx.ID_ANY, text = "&Save Image")
+        item = FileMenu.Append(wx.ID_ANY, "&Save Image")
         self.Bind(wx.EVT_MENU, self.OnSaveImage, item)
 
-        item = FileMenu.Append(wx.ID_ANY, text = "&Save Data Table")
+        item = FileMenu.Append(wx.ID_ANY, "&Save Data Table")
         self.Bind(wx.EVT_MENU, self.OnSaveData, item)
 
-        item = FileMenu.Append(wx.ID_PREFERENCES, text = "&Preferences")
+        item = FileMenu.Append(wx.ID_PREFERENCES, "&Preferences")
         self.Bind(wx.EVT_MENU, self.OnPrefs, item)
 
-        item = FileMenu.Append(wx.ID_EXIT, text = "&Exit")
+        item = FileMenu.Append(wx.ID_EXIT, "&Exit")
         self.Bind(wx.EVT_MENU, self.OnQuit, item)
 
         MenuBar.Append(FileMenu, "&File")
@@ -134,7 +134,7 @@ class RoseFrame(wx.Frame):
                             defaultDir=self.LastDir,
                             defaultFile="",
                             #wildcard=wildcard,
-                            style=wx.OPEN | wx.CHANGE_DIR
+                            style=wx.FD_OPEN | wx.FD_CHANGE_DIR
                             )
 
         if dlg.ShowModal() == wx.ID_OK:
@@ -150,7 +150,7 @@ class RoseFrame(wx.Frame):
                             defaultDir=self.LastDir,
                             defaultFile="",
                             wildcard="*.png",
-                            style=wx.SAVE | wx.CHANGE_DIR
+                            style=wx.FD_SAVE | wx.FD_CHANGE_DIR
                             )
 
         if dlg.ShowModal() == wx.ID_OK:
@@ -322,13 +322,13 @@ class WindRosePanel(wx.Panel):
 
         ## compute the locations of the circles
         if max_percent <= 12:
-            circles = range(2, int(max_percent)+3, 2)
+            circles = list(range(2, int(max_percent)+3, 2))
         elif max_percent <= 30:
-            circles = [3] + range(5, int(max_percent)+6, 5)
+            circles = [3] + list(range(5, int(max_percent)+6, 5))
         elif max_percent <= 60:
-            circles = [5] + range(10, int(max_percent)+11, 10)
+            circles = [5] + list(range(10, int(max_percent)+11, 10))
         else:
-            circles = [5, 10] + range(20, int(max_percent)+21, 20)
+            circles = [5, 10] + list(range(20, int(max_percent)+21, 20))
         # compute the radius of the center calm circle
         r_center = np.sqrt(calm/n_dir)
         r_circles = np.sqrt(np.array(circles)) + r_center
@@ -487,8 +487,8 @@ class RoseApp(wx.App):
 #        dlg.Destroy()
 
     def MacOpenFile(self, filename):
-        print filename
-        print "%s dropped on app"%(filename) #code to load filename goes here.
+        print(filename)
+        print("%s dropped on app"%(filename)) #code to load filename goes here.
         self.frame.LoadNewFile(filename)
 
 def make_random_data(num_samples):
@@ -513,18 +513,18 @@ def make_random_data(num_samples):
     return data
 
 if __name__ == "__main__":
-    print "getting app:", wx.GetApp()
+    print("getting app:", wx.GetApp())
     if wx.GetApp() is None:
-        print "no app -- making one"
+        print("no app -- making one")
         app = RoseApp(False)
     else:
-        print "there is already an app"
+        print("there is already an app")
 
     try: # see if we're running in ipython
-        print "using ipython to start"
         from IPython import appstart_wx
+        print("using ipython to start")
         appstart_wx(app)
     except ImportError: # we're not -- do the regular start up
-        print "Ipython did not import"
+        print("Ipython did not import -- starting normally")
         app.MainLoop()
 

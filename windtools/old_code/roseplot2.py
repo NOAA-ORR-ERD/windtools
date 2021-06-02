@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from simpleSVG import * 
+from functools import reduce
 infilename='rosebin2.dat'
 bindat=open(infilename,'r')
 wf=[] #will be a list of total events in each angle bin

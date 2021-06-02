@@ -2469,7 +2469,7 @@ if __name__ == "__main__":
                     Sizer = wx.BoxSizer(wx.VERTICAL)
                     Sizer.Add(wx.StaticText(self, label=name), 0, wx.ALL, 5)
                     cm = ColorMap(name)
-                    colors = cm.get_colors(range(20), ValRange=(0,19), out_type = 'int')
+                    colors = cm.get_colors(list(range(20)), ValRange=(0,19), out_type = 'int')
                     for c in colors:
                         w = wx.Window(self, size=(100, 20))
                         w.SetBackgroundColour(wx.Colour(*c))

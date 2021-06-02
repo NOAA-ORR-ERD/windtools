@@ -28,7 +28,7 @@ from windtools import MetData
 try:
     infilename = sys.argv[1]
 except IndexError:
-    print Usage
+    print(Usage)
     sys.exit()
 outfilename = infilename.rsplit('.', 1)[0] + ".OSM"
 
@@ -43,10 +43,10 @@ except IndexError:
     timeZoneName = ""
 
 
-print "Reading:", infilename
+print("Reading:", infilename)
 data = MetData(infilename)
 
-print "Converting to:", outfilename
+print("Converting to:", outfilename)
 if timeZone != 0:
     data.ChangeTZ(timeZone, timeZoneName)
 

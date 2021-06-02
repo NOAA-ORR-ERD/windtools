@@ -35,7 +35,7 @@ class svg_class:
 		while self.group_count>=1: self.group()
 		endfile = "</svg>\n"
 		self.svg.write(endfile)
-		print "The file ",self.fname," was successfully written and closed by simpleSVG"
+		print("The file ",self.fname," was successfully written and closed by simpleSVG")
 		self.svg.close()
 		return
 
@@ -61,7 +61,7 @@ class svg_class:
 			return self.leftmarg+(x-self.xmin)*self.xscale
 		elif isinstance(x,complex):
 			return x.imag*self.bbx
-		elif isinstance(x,long):
+		elif isinstance(x,int):
 			return x*.01
 		else:
 			return x 
@@ -71,7 +71,7 @@ class svg_class:
 			return self.bby-(self.botmarg+(y-self.ymin)*self.yscale)
 		elif isinstance(y,complex):
 			return y.imag*self.bby
-		elif isinstance(y,long):
+		elif isinstance(y,int):
 			return y*.01
 		else:
 			return y
@@ -82,7 +82,7 @@ class svg_class:
 			return x*self.xscale
 		elif isinstance(x,complex):
 			return x.imag*self.bbx
-		elif isinstance(x,long):
+		elif isinstance(x,int):
 			return x*.01
 		else:
 			return x 
@@ -92,7 +92,7 @@ class svg_class:
 			return -y*self.yscale #note minus sign!!
 		elif isinstance(y,complex):
 			return y.imag*self.bby
-		elif isinstance(y,long):
+		elif isinstance(y,int):
 			return y*.01
 		else:
 			return y 
@@ -136,7 +136,7 @@ class svg_class:
 	def path(self,*a,**k):
 		d=k.pop('d',"")
 		style=k.pop('style',"")
-		for key in k.keys(): style+=key.replace('_','-')+':'+str(k[key])+';'
+		for key in list(k.keys()): style+=key.replace('_','-')+':'+str(k[key])+';'
 		if a: d+=self.pathdata(*a)
 		p='<path '
 		if style: p+='style="'+style+'" '
@@ -149,7 +149,7 @@ class svg_class:
 		else:
 			style=k.pop('style',"")
 			transform=k.pop('transform',"")
-			for key in k.keys(): style+=key.replace('_','-')+':'+str(k[key])+';'
+			for key in list(k.keys()): style+=key.replace('_','-')+':'+str(k[key])+';'
 			self.group_count+=1
 			g='<g '
 			if style: g+='style="'+style+'" '
@@ -161,47 +161,47 @@ class svg_class:
 
 	def rect(self,x,y,width,height,**k): #better than native: negative width and height okay
 		style=k.pop('style',"")
-		for key in k.keys(): style+=key.replace('_','-')+':'+str(k[key])+';'
+		for key in list(k.keys()): style+=key.replace('_','-')+':'+str(k[key])+';'
 		d=self.pathdata('M',x,y,'l',width,0,'l',0,height,'l',-width,0,'Z')
 		self.path(d=d,style=style)
 
 	def rect2(self,x1,y1,x2,y2,**k):
 		style=k.pop('style',"")
-		for key in k.keys(): style+=key.replace('_','-')+':'+str(k[key])+';'
+		for key in list(k.keys()): style+=key.replace('_','-')+':'+str(k[key])+';'
 		d=self.pathdata('M',x1,y1,'L',x2,y1,'L',x2,y2,'L',x1,y2,'Z')
 		self.path(d=d,style=style)
 
 	def poly(self,*a,**k):
 		style=k.pop('style',"")
-		for key in k.keys(): style+=key.replace('_','-')+':'+str(k[key])+';'
+		for key in list(k.keys()): style+=key.replace('_','-')+':'+str(k[key])+';'
 		b=[x for x in flattn(a)] 
 		d=self.pathdata('M',b[0:2],'L',b[2:],'Z')
 		self.path(d=d,style=style)
 
 	def draw(self,*a,**k):
 		style=k.pop('style',"")
-		for key in k.keys(): style+=key.replace('_','-')+':'+str(k[key])+';'
+		for key in list(k.keys()): style+=key.replace('_','-')+':'+str(k[key])+';'
 		b=[x for x in flattn(a)] 
 		d=self.pathdata('M',b[0:2],'L',b[2:])
 		self.path(d=d,style=style)
 
 	def circle(self,cx,cy,r,**k):
 		style=k.pop('style',"")
-		for key in k.keys(): style+=key.replace('_','-')+':'+str(k[key])+';'
+		for key in list(k.keys()): style+=key.replace('_','-')+':'+str(k[key])+';'
 		p='<circle cx="%.2f" cy="%.2f" r="%.2f" ' % (self.ix(cx),self.jy(cy),self.sx(r))  
 		if style: p+='style="'+style+'" '
 		self.svg.write(p+'/>\n')
 
 	def line(self,x1,y1,x2,y2,**k):
 		style=k.pop('style',"")
-		for key in k.keys(): style+=key.replace('_','-')+':'+str(k[key])+';'
+		for key in list(k.keys()): style+=key.replace('_','-')+':'+str(k[key])+';'
 		p='<line x1="%.2f" y1="%.2f" x2="%.2f" y2="%.2f" ' % (self.ix(x1),self.jy(y1),self.ix(x2),self.jy(y2))  
 		if style: p+='style="'+style+'" '
 		self.svg.write(p+'/>\n')
 
 	def text(self,x,y,angle,text,**k):
 		style=k.pop('style',"")
-		for key in k.keys(): style+=key.replace('_','-')+':'+str(k[key])+';'
+		for key in list(k.keys()): style+=key.replace('_','-')+':'+str(k[key])+';'
 		p='<text transform="translate(%8.2f,%8.2f) rotate(%8.2f) "' % (self.ix(x),self.jy(y),-angle)
 		if style: p+=' style="'+style+'" '
 		p+='>\n'
@@ -212,7 +212,7 @@ class svg_class:
 #sector with center at user (x,y), but radius r1 and r2 are in pts:
 	def sector(self,x,y,r1,r2,a1,a2,**k):
 		style=k.pop('style',"")
-		for key in k.keys(): style+=key.replace('_','-')+':'+str(k[key])+';'
+		for key in list(k.keys()): style+=key.replace('_','-')+':'+str(k[key])+';'
 		largecircle='0'
 		if (a2<a1): a2,a1=a1,a2
 		if abs(a2-a1)>180: largecircle='1'
@@ -233,7 +233,7 @@ class svg_class:
 #COMPOSITE DRAWING
 	def arrow(self,x1,y1,x2,y2,headsize,**k): #headsize is in pts
 		style=k.pop('style',"")
-		for key in k.keys(): style+=key.replace('_','-')+':'+str(k[key])+';'
+		for key in list(k.keys()): style+=key.replace('_','-')+':'+str(k[key])+';'
 		self.group(style=style)
 		i1,j1,i2,j2=self.ix(x1),self.jy(y1),self.ix(x2),self.jy(y2)
 		headsize=self.sx(headsize)
@@ -253,7 +253,7 @@ class svg_class:
 		
 	def fatarrow(self,x1,y1,x2,y2,asize,**k): #asize is the half-width of the fat arrow
 		style=k.pop('style',"")
-		for key in k.keys(): style+=key.replace('_','-')+':'+str(k[key])+';'
+		for key in list(k.keys()): style+=key.replace('_','-')+':'+str(k[key])+';'
 		i1,j1,i2,j2=self.ix(x1),self.jy(y1),self.ix(x2),self.jy(y2)
 		asize=self.sx(asize)
 		r=sqrt((i2-i1)**2+(j2-j1)**2)
@@ -265,7 +265,7 @@ class svg_class:
 
 	def windbarb(self,x,y,s,a,h,**k):
 		style=k.pop('style',"")
-		for key in k.keys(): style+=key.replace('_','-')+':'+str(k[key])+';'
+		for key in list(k.keys()): style+=key.replace('_','-')+':'+str(k[key])+';'
 		transform= "translate(%8.2f,%8.2f) rotate(%8.2f) " % (self.ix(x),self.jy(y),a-90)
 		self.group(style=style,transform=transform)
 		i1,j1=self.ix(x),self.jy(y)
@@ -318,7 +318,7 @@ class svg_class:
 		if x2=="": x2=self.xmax
 		if dx=="": dx=(self.xmax-self.xmin)*.1
 		if xticks==None: xticks=[]
-		y,x1,x2,dx=map(float,[y,x1,x2,dx])
+		y,x1,x2,dx=list(map(float,[y,x1,x2,dx]))
 		if grid:
 			y2=float(self.ymax)
 			self.line(x1,y2,x2,y2)
@@ -350,7 +350,7 @@ class svg_class:
 		if y2=="": y2=self.ymax
 		if dy=="": dy=(self.ymax-self.ymin)*.1
 		if yticks==None: yticks=[]
-		x,y1,y2,dy=map(float,[x,y1,y2,dy])
+		x,y1,y2,dy=list(map(float,[x,y1,y2,dy]))
 		self.line(x,y1,x,y2)
 		if grid:
 			x2=float(self.xmax)
@@ -372,7 +372,7 @@ class svg_class:
 ### some functions independent of svg_class
 	
 def lng(x): #converts postscript (pts) coordinates to hi-res coordinate type
-	return long(100*x)
+	return int(100*x)
 
 #following is from 
 # http://www.ubookcase.com/book/Oreilly/Python.Cookbook.2nd.edition/0596007973/pythoncook2-chp-4-sect-6.html
@@ -405,13 +405,13 @@ def rgbstring(*colors):
 
 def stylestring(**k): 
 	s=""
-	for key in k.keys():
+	for key in list(k.keys()):
 		s+=key.replace('_','-')+':'+str(k[key])+';'
 	return s
 
 def SVGtest():
 	import simpleSVG 
-	print "A sample plot will be output as testSVG.svg"
+	print("A sample plot will be output as testSVG.svg")
 	a=simpleSVG.svg_class(fname='testSVG.svg',bbx=600,bby=600) #override defaults for bbx and bby
 	a.group(fill='black')#otherwise fonts are hollow
 	a.yaxis()
@@ -429,7 +429,7 @@ def SVGtest():
 	a.line(.5,.5,.4,.5)
 	a.group(stroke_width=5) #apply this style to all items in the group
 	a.line(.5,.5,.4,.6)
-	a.line(300,30000L,.5,.6,stroke="lime") #same central starting point, specified two ways in SVG coords
+	a.line(300,30000,.5,.6,stroke="lime") #same central starting point, specified two ways in SVG coords
 	a.path('M',300,300,'l',.1,.1,stroke="red",stroke_dasharray='3,2') #a line is easily made from path too
 	a.fatarrow(.5,.5,.7,.5,10,fill='green',stroke='none') #arrow is like line, but with a headsize
 	a.arrow(.5,.5,.7,.4,10,stroke_width=3,stroke='maroon',fill='black') #fill is for the head

@@ -64,7 +64,7 @@ class ReaderTester:
 
     def test_units(self):
         if self.units is not Undefined:
-            for key, value in self.units.items():
+            for key, value in list(self.units.items()):
                 assert_equal(self.MD.Units[key], value)
 
     def test_time_zone(self):
@@ -126,7 +126,7 @@ class Test_NDBC_Historical(ReaderTester):
     filename = "42035h2000-sept.txt"
     MD = MetData(os.path.join(TestDataDir, filename))
     start_time = dt(2000, 9, 1, 00)
-    end_time = dt(2000, 10, 27, 07)
+    end_time = dt(2000, 10, 27, 0o7)
     time_zone = 'UTC'
     name = '42035h2000-sept'
     lat_long = (None, None)
@@ -282,7 +282,7 @@ class Test_NDBC_RealTime_Missing_Dir(ReaderTester):
     #          'TideHeight': 'feet',
     #          }
     def test_missing_wind_dir(self):
-        print self.MD.GetFieldsAsArray(['WindDirection', 'WindSpeed'])
+        print(self.MD.GetFieldsAsArray(['WindDirection', 'WindSpeed']))
         wind = self.MD.GetFieldsAsArray(['WindDirection', 'WindSpeed'])
         # make sure NaNs are in the right place:
         assert np.isnan(wind[3, 0])

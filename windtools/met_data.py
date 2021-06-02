@@ -93,8 +93,8 @@ class MetData:
                 if len(PossibleTypes) == 0:
                     raise NoFileTypeMatchError("%s does not match any of the known file types"%FileName)
                 elif len(PossibleTypes) > 1:
-                    print PossibleTypes
-                    print [r.Type for r in PossibleTypes]
+                    print(PossibleTypes)
+                    print([r.Type for r in PossibleTypes])
                     raise MultipleFileTypeMatchError([r.Type for r in PossibleTypes])
                 else:
                     FileReader = PossibleTypes[0]
@@ -103,7 +103,7 @@ class MetData:
             self.LoadData()
 
     def __getitem__(self, index):
-       if ( type(index) == type("") or type(index) == type(u"") ):
+       if ( type(index) == type("") or type(index) == type("") ):
            index = (index,)
        return self.GetFieldsAsArray(index)
 
@@ -111,7 +111,7 @@ class MetData:
         PossibleTypes = []
 
         for ReaderClass in FileReaderClasses:
-            Reader = apply(ReaderClass)
+            Reader = ReaderClass()
             if Reader.IsType(self.FileName):
                 PossibleTypes.append(Reader)
 
@@ -154,16 +154,16 @@ class MetData:
 
 
     def SaveAsOSSMWind(self, filename, name=None, units='mps'):
-        print "writing:", filename
+        print("writing:", filename)
         SpeedUnits = self.Units["WindSpeed"]
         spd_idx = self.Fields["WindSpeed"]
         dir_idx = self.Fields["WindDirection"]
         data = self.DataArray[:, (spd_idx, dir_idx)]
         # write the file:
-        outfile = file(filename, 'w')
+        outfile = open(filename, 'w', encoding='utf-8')
         outfile.write("%s\n"%self.Name)
         if self.LatLong[0] is not None and self.LatLong[1] is not None:
-            print "writting lat-lon:", self.LatLong
+            print("writting lat-lon:", self.LatLong)
             outfile.write("%f, %f\n"%tuple(self.LatLong)) ## this needs to be fixed!
         else:
             outfile.write("\n")
@@ -184,12 +184,12 @@ class MetData:
             outfile.write("%.2f, %i\n"%(speed, dir))
 
     def SaveAsOSSMWave(self, filename, name=None, units='mps'):
-        print "writing:", filename
+        print("writing:", filename)
         SpeedUnits = self.Units["WindSpeed"]
         spd_idx = self.Fields["WaveHeight"]
         data = self.DataArray[:, (spd_idx, )]
         # write the file:
-        outfile = file(filename, 'w')
+        outfile = open(filename, 'w', encoding='utf-8')
         outfile.write("%s\n" % self.Name)
         outfile.write("%f, %f\n" % self.LatLong)  # this needs to be fixed!
 
@@ -208,7 +208,7 @@ class MetData:
         """
         returns a numpy array with just the fields specified in fields
         """
-        outdata = np.empty((self.DataArray.shape[0], len(fields)), dtype=np.float)
+        outdata = np.empty((self.DataArray.shape[0], len(fields)), dtype=np.float64)
         #fixme: this should be do-able with fancy indexing!
         for i, f in enumerate(fields):
             outdata[:,i] = self.DataArray[:,self.Fields[f]]
@@ -228,7 +228,7 @@ class MetData:
         for i, dt in enumerate(self.Times):
             if dt.month in months:
                 outdata.append(self.DataArray[i,field_ind])
-        return np.array(outdata, dtype=np.float)
+        return np.array(outdata, dtype=np.float64)
 
     def CheckData(self):
         """
@@ -291,12 +291,12 @@ class MetData:
             raise ValueError(msg)
 
         # check for matching fields:
-        print "self fields:", self.Fields
-        print "other fields:", other.Fields
+        print("self fields:", self.Fields)
+        print("other fields:", other.Fields)
 
         if first.Fields != second.Fields:
-            print first.Fields.keys()
-            print second.Fields.keys()
+            print(list(first.Fields.keys()))
+            print(list(second.Fields.keys()))
             raise ValueError("dataset Fields don't match")
         if first.TimeZone != second.TimeZone:
             raise ValueError("Timezone doesn't match")
@@ -307,11 +307,11 @@ class MetData:
 
         # Merge them:
         self.Times = first.Times + second.Times
-        print first.DataArray.shape
-        print second.DataArray.shape
+        print(first.DataArray.shape)
+        print(second.DataArray.shape)
         self.DataArray = np.concatenate((first.DataArray,
                                          second.DataArray))
-        print self.DataArray.shape
+        print(self.DataArray.shape)
         return None  # This is a mutating method -- so it returns None
 
     def __iadd__(self, other):
@@ -360,7 +360,7 @@ class OSSM_ReaderClass(MetFileReader):
         The data should be 7 comma separated values
         """
         ## I think the fifth line should be all zeros
-        infile = file(FileName, 'UR')
+        infile = open(FileName, 'r', encoding='utf-8')
         for i in range(4):
             infile.readline()
         line = infile.readline()
@@ -375,12 +375,12 @@ class OSSM_ReaderClass(MetFileReader):
             return False
         # first 5 should be integers
         try:
-            map(int, data[:5])
+            list(map(int, data[:5]))
         except ValueError:
             return False
         # last two should be floats
         try:
-            map(float, data[5:])
+            list(map(float, data[5:]))
         except ValueError:
             return False
         # fixme: Should I check data fields, etc?
@@ -392,7 +392,7 @@ class OSSM_ReaderClass(MetFileReader):
         Sixth row should be OSSM-style data, and first five should not be.
           NOTE:  are there other OOSM formats where that is true?
         """
-        infile = file(FileName, 'U')
+        infile = open(FileName, 'r', encoding='utf-8')
         for i in range(num_rows):
             line = infile.readline()
             if self.CheckDataLine( line ):
@@ -414,9 +414,9 @@ class OSSM_ReaderClass(MetFileReader):
             if data:
                 DataArray.append( (float(data[5]), float(data[6]) ) )
                 #process date:
-                dt = map(int, data[:5])
+                dt = list(map(int, data[:5]))
                 Times.append( datetime.datetime(dt[2],dt[1],dt[0],dt[3],dt[4]) )
-        DataArray = np.array(DataArray, dtype=np.float)
+        DataArray = np.array(DataArray, dtype=np.float64)
         self.DataArray = DataArray
         self.Times = Times
 
@@ -452,7 +452,7 @@ class OSSM_Wind_ReaderClass(OSSM_ReaderClass):
         return self.CheckHeader(FileName, 5)
 
     def LoadData(self, FileName):
-        infile = file(FileName, 'U')
+        infile = open(FileName, 'r', encoding='utf-8')
 
         # read the header
         self.Name = infile.readline().strip()
@@ -497,7 +497,7 @@ class OSSM_Hyd_Reader(OSSM_ReaderClass):
         return self.CheckHeader(FileName, 3)
 
     def LoadData(self, FileName):
-        infile = file(FileName, 'U')
+        infile = open(FileName, 'r', encoding='utf-8')
 
         # read the header
         self.Name = infile.readline().strip()
@@ -547,7 +547,7 @@ class NGDC_ReaderClass(MetFileReader):
         I'm sure this could be much improved -- why not just use LoadData?
 
         """
-        infile = file(FileName, 'U')
+        infile = open(FileName, 'r', encoding='utf-8')
         for i, line in enumerate(infile):
             if line.strip() == self.HeaderLine:
                 return True
@@ -555,7 +555,7 @@ class NGDC_ReaderClass(MetFileReader):
                 return False
 
     def LoadData(self, FileName):
-        infile = file(FileName,'U')
+        infile = open(FileName, 'r', encoding='utf-8')
         # skip the header
         infile.readline()
         ## load the data
@@ -648,7 +648,7 @@ class RawPortsReaderClass(MetFileReader):
 
         """
         Yes = 0
-        infile = file(FileName, 'U')
+        infile = open(FileName, 'r', encoding='utf-8')
         for i, line in enumerate(infile):
             if line.split() == self.HeaderLine:
                 return True
@@ -657,8 +657,8 @@ class RawPortsReaderClass(MetFileReader):
 
     def LoadData(self, FileName):
         self.StationName = None
-        print "loading:", FileName
-        infile = file(FileName,'U')
+        print("loading:", FileName)
+        infile = open(FileName, 'r', encoding='utf-8')
         # look for the Header
         for i in range(40):
             line = infile.readline()
@@ -666,7 +666,7 @@ class RawPortsReaderClass(MetFileReader):
                 break
             if "STATION NAME" in line:
                 self.StationName = line.split(':')[1].strip()
-                print infile.readline()
+                print(infile.readline())
                 break
         if self.StationName is None:
             raise BadFileTypeError("This does not appear to be a %s file\n It does not have a 'STATION NAME' line"%self.Type)
@@ -788,7 +788,7 @@ class NDBCReaderClass(MetFileReader):
         I'm sure this could be much improved
 
         """
-        line = file(FileName, 'U').readline()
+        line = open(FileName, 'r', encoding='utf-8').readline()
 
         if line.split()[1:4] == self.HeaderLine:
             return True
@@ -798,7 +798,7 @@ class NDBCReaderClass(MetFileReader):
     def LoadData(self, FileName, Name = None, LatLong = None):
         if Name is None:
             self.Name = os.path.split(FileName)[-1].rsplit(".")[0]
-        infile = file(FileName,'U')
+        infile = open(FileName, 'r', encoding='utf-8')
         if not self.IsType(FileName):
             raise BadFileTypeError("This does not appear to be a %s file\n It does not have the correct header line"%self.Type)
 
@@ -840,8 +840,8 @@ class NDBCReaderClass(MetFileReader):
             except ValueError:
                 pass
         if msg:
-            print msg
-        self.DataArray = np.array(self.DataArray, np.float)
+            print(msg)
+        self.DataArray = np.array(self.DataArray, np.float64)
         ## Replace the missing values with NaN:
         for val in self.MissingValues:
             self.DataArray[self.DataArray == val] =  np.NaN
@@ -886,7 +886,7 @@ class NCDC_LCD_ReaderClass(MetFileReader):
 
         """
         Yes = 0
-        infile = file(FileName, 'U')
+        infile = open(FileName, 'r', encoding='utf-8')
         for i, line in enumerate(infile):
             if line.strip().split(",") == self.HeaderLine:
                 return True
@@ -894,7 +894,7 @@ class NCDC_LCD_ReaderClass(MetFileReader):
                 return False
 
     def LoadData(self, FileName):
-        infile = file(FileName,'U')
+        infile = open(FileName, 'r', encoding='utf-8')
         count = 0
         while count < 10:
             line = infile.readline().strip()

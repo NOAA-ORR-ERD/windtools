@@ -23,7 +23,7 @@ dirless=0 #initialize number of events with ambiguous direction
 while True:
     line = infile.readline()
     if line.strip() == '0,0,0,0,0,0,0,0':
-        print "past the header"
+        print("past the header")
         break
 
 while True:
@@ -35,7 +35,7 @@ while True:
 #    if a[4][0]=='*' or a[5][0]=='*':   #missing data is denoted with "***"
 #        print 'skip record with missing data:', aline,
 #        continue
-    if int(a[1]) <> int(month):
+    if int(a[1]) != int(month):
         continue
     wdir = float(a[6]) #data was read as string, convert to float
     speed = float(a[5])
@@ -56,4 +56,4 @@ outfile.write(str(iw)+"\n")
 for i in range(0,num_bins):
     outfile.write(str([i,b[i][:]])+"\n")
 outfile.close()
-print outfilename + " was written"
+print(outfilename + " was written")

@@ -34,10 +34,10 @@ def test_all_counted(data, spd_bins, num_dir_bins,):
     rose = WR(data, spd_bins, num_dir_bins)
 
     #bins, spd_bins, dir_bins = WR(data, spd_bins, num_dir_bins).BinTheData()
-    print bins, spd_bins, dir_bins
-    print rose.binned_data
-    print "bins", rose.vel_bins
-    print "bins.sum(), len(data):", rose.vel_bins.sum(), len(data)
+    print(bins, spd_bins, dir_bins)
+    print(rose.binned_data)
+    print("bins", rose.vel_bins)
+    print("bins.sum(), len(data):", rose.vel_bins.sum(), len(data))
     assert rose.vel_bins.sum() == len(data)
 
 

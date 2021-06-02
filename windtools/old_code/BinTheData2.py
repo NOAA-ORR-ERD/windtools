@@ -20,7 +20,7 @@ while 1:
 	if aline[0]=='#': continue
 	a=aline.split()
 	if a[4][0]=='*' or a[5][0]=='*':   #missing data is denoted with "***"
-			print 'skip record with missing data:', aline,
+			print('skip record with missing data:', aline, end=' ')
 			continue
 	wdir=int(a[5]) #data was read as string, convert to integer
 	speed=int(a[4])
@@ -41,4 +41,4 @@ outfile.write(str(iw)+"\n")
 for i in range(0,36):
 	outfile.write(str([i,b[i][:]])+"\n")
 outfile.close()
-print outfilename+" was written"
+print(outfilename+" was written")

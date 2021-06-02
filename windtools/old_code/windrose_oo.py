@@ -69,7 +69,7 @@ class WindroseAxes(PolarAxes):
         self.title.set_transform(self.transAxes)
         self._set_artist_props(self.title)
         self.thetas = N.linspace(0, 2*N.pi, self.RESOLUTION)
-        verts = zip(self.thetas, N.ones(self.RESOLUTION))
+        verts = list(zip(self.thetas, N.ones(self.RESOLUTION)))
         self.axesPatch = Polygon(
             verts,
             facecolor=self._axisbg,
@@ -476,7 +476,7 @@ def histogram(dir, var, bins, nsector, normed=False, blowto=False):
     """
 
     if len(var) != len(dir):
-        raise ValueError, "var and dir must have same length"
+        raise ValueError("var and dir must have same length")
 
     angle = 360./nsector
 

@@ -39,7 +39,7 @@ DummyData = MetData(TimeZone='PST',
                                                   [15, 12.2, 340],
                                                   [15, 13.4, 340],
                                                   [12, 14.5, 340]],
-                                                 dtype=np.float),
+                                                 dtype=np.float64),
                             Times = [datetime.datetime(*dt) for dt in [(2004, 1, 5, 4, 0),
                                                                        (2004, 1, 6, 5, 0),
                                                                        (2004, 2, 6, 4, 0),
@@ -83,7 +83,7 @@ def test_out_of_order():
 
 def test_months():
     a = DummyData.GetFieldsMonthlyAsArray((2, 5), ("WindSpeed", "WaterTemp"), )
-    print a
+    print(a)
     assert np.array_equal(a, [[16., 17.3],
                               [18., 18.2],
                               [24., 13.3],
@@ -93,6 +93,6 @@ def test_months():
 
 def test_months2():
     a = DummyData.GetFieldsMonthlyAsArray((11,), ("WindSpeed", "WindDirection"), )
-    print a
+    print(a)
     assert np.array_equal(a, [[15, 340],
                               ])

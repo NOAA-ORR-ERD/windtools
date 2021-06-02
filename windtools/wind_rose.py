@@ -60,7 +60,7 @@ class WindRose():
         num_dir_bins = self.num_dir_bins
 
         # add Inf to vel bins, if required:
-        velocity_bins = np.asarray(velocity_bins, dtype=np.float)
+        velocity_bins = np.asarray(velocity_bins, dtype=np.float64)
         if not( velocity_bins[-1] == np.Inf):
             velocity_bins = np.r_[velocity_bins, np.Inf]
         # add a zero at the beginning, if required
@@ -156,7 +156,7 @@ def BuildStatTable(data, vel_bins, num_dir_bins=16):
 
     """
     # add Inf to vel bins, if required:
-    vel_bins = np.asarray(vel_bins, dtype=np.float)
+    vel_bins = np.asarray(vel_bins, dtype=np.float64)
     if not( vel_bins[-1] == np.Inf):
         vel_bins = np.r_[vel_bins, np.Inf]
 
@@ -236,10 +236,10 @@ def MakeOSSMTable(data):
 
 
 if __name__ == "__main__":
-    #points = np.arange(0, 360, 11.25, dtype=np.float)
+    #points = np.arange(0, 360, 11.25, dtype=np.float64)
     #points = np.random.normal(loc=180, scale = 60, size=(100,) )
     #points %= 360
-    #data = np.array([(sp, dir) for sp in (1, 3, 4, 5, 6, 7, 12, 17, 25) for dir in points], dtype=np.float)
+    #data = np.array([(sp, dir) for sp in (1, 3, 4, 5, 6, 7, 12, 17, 25) for dir in points], dtype=np.float64)
     dirs = np.random.normal(loc=180, scale = 60, size=(1000,) )
     spds = np.random.normal(loc=10, scale = 6, size=(1000,) )
     spds = np.where((spds<0), 0, spds)
@@ -247,5 +247,5 @@ if __name__ == "__main__":
     #vel_bins = [1, 5, 10, 15, 21,]
     #Rose = WindRose(data, vel_bins, units='knots', num_dir_bins=16)
     #print Rose.binned_data
-    print MakeOSSMTable(data)
+    print(MakeOSSMTable(data))
 

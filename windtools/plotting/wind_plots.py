@@ -26,7 +26,7 @@ def reset_directions(directions, dir='from'):
     """
     if dir == 'from':
         # reverse the direction, so it plots "to"
-        print "reversing direction"
+        print("reversing direction")
         directions = (directions + 90) * -1
     elif dir == 'to':
         # don't reverse, so it plots "to"
@@ -102,7 +102,7 @@ def stick(axes, times, speeds, directions, dir="from", ylabel=''):
     
     Q = axes.quiver(times, y, speeds, v, angles=directions.reshape((-1,1)), **props)
     axes.axhline(y=0, linewidth=1, color='r')
-    print "quiverkey", label_scale
+    print("quiverkey", label_scale)
     #axes.quiverkey(Q, X=0.1, Y=0.95, U=label_scale, label=unit_label, coordinates='axes', labelpos='S')
 
     axes.yaxis.set_major_locator(mpl.ticker.NullLocator())
@@ -163,7 +163,7 @@ if __name__ == '__main__':
                            180.0, 202.5, 225.0, 247.5, 270.0, 292.5, 315.0, 337.5],
                           dtype=np.float)
     speeds  = ( np.sin( np.linspace(0, 2*np.pi, len(directions)) ) + 1.5 ) * 6
-    times = range(len(speeds))
+    times = list(range(len(speeds)))
     #times = [datetime.datetime(2009, 5, 13, 0) + datetime.timedelta(hours=h*48) for h in times]
     times = [datetime.datetime(2009, 5, 13, 0) + datetime.timedelta(hours=h*2) for h in times]
     

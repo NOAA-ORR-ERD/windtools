@@ -5,6 +5,7 @@
 import sys, math
 
 from simpleSVG import * 
+from functools import reduce
 
 infilename='rosebin2.dat'
 

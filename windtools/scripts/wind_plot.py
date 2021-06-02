@@ -22,15 +22,16 @@ import matplotlib.pyplot as plt
 
 from weathertools import MetData
 from weathertools.Plotting import wind_plots
-reload(wind_plots)
+import importlib
+importlib.reload(wind_plots)
 
 try:
     infilename = sys.argv[1]
 except IndexError:
-    print Usage
+    print(Usage)
     sys.exit()
 
-print "Reading:", infilename
+print("Reading:", infilename)
 Data = MetData.MetData(infilename)
 
 times = Data.Times
@@ -40,11 +41,11 @@ speeds = data[:,0]
 directions = data[:,1]
 
 for i in zip(times, directions):
-    print i
+    print(i)
 
 units = Data.Units['WindSpeed']
 
-print "Plotting:"
+print("Plotting:")
 
 fig = plt.figure(1)
 fig.clear()
